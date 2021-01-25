@@ -1,0 +1,37 @@
+name: auto sign
+
+on:
+  push:
+  schedule:
+    - cron: '0 23 * * *' # 每天在国际标准时间23点（北京时间早上7点）运行
+
+jobs:
+  build:
+
+    # 系统环境
+    runs-on: ubuntu-latest
+
+    # 执行步骤
+    steps:
+
+    # 拉取当前github文件
+    - name: clone file
+      uses: actions/checkout@v2
+    
+    # 配置node环境
+    - name: set up node
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    
+    # 如果是定时任务则随机休眠
+    - name: Random sleep
+      if: github.event_name == 'schedule'
+      run: sleep $(shuf -i 10-300 -n 1)
+    
+    # 配置环境变量给js读取，执行js文件
+    - name: Run sign
+      env:
+        UX34: ${{ secrets.UX34 }}
+      run: node app.js
+                
