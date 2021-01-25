@@ -95,6 +95,10 @@ on:
 
 ## 🔍结果
 
+可以先手动运行一次看看能不能登录，能不能打卡.
+
+![手动运行](https://gitee.com/umbrella34/blogImage/raw/master/img/image-20210125215418205.png)
+
 当你完成上述流程，可以在 `Actions` 页面点击 `auto sign` --> `build` --> `Run sign` 查看运行日志.
 
 ![查看运行结果](https://gitee.com/umbrella34/blogImage/raw/master/img/image-20210125212841095.png)
