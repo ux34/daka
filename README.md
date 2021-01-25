@@ -3,6 +3,8 @@
 
 **自动签到**  程序会在每天早上7点自动打卡
 
+> Github的图片可能无法显示，可以前往 [https://ux34.cn/pages/81c1ce/](https://ux34.cn/pages/81c1ce/) 查看原文
+
 ## 📝前言
 
 此案例仅供学习交流，如有不当之处请邮件通知我 `ux34@qq.com` 删除。
@@ -47,28 +49,55 @@
 
 - 回到项目页面，依次点击 `Settings` --> `Secrets` --> `New secret`
 
-![new-secret.png](https://gitee.com/umbrella34/blogImage/raw/master/img/sxTuBFtRvzSgUaA.png)
+![new-secret](https://gitee.com/umbrella34/blogImage/raw/master/img/sxTuBFtRvzSgUaA.png)
 
 - 建立名为 `UX34` 的 secret，值为上面复制的内容，做出对于的修改，最后点击`Add secret`
 - secret名字必须为`UX34`！不然js中拿不到数据
 - 修改时不要误删英文双引号
 
-![secret](https://gitee.com/umbrella34/blogImage/raw/master/img/image-20210125143311613.png)
+![secret配置](https://gitee.com/umbrella34/blogImage/raw/master/img/image-20210125143311613.png)
 
 ### 3. 启用 Actions
 
 > Actions 默认为关闭状态，Fork 之后需要手动执行一次，若成功运行其才会激活。
 
-返回项目主页面，点击上方的 `Actions`，点击绿色按钮 `I understand my workflows, go ahead and enable them`
+返回项目主页面，点击上方的 `Actions`，点击绿色按钮 `I understand my workflows, go ahead and enable them`. 
+
+进去后点击左边的 `auto sign`, 在点击 `enable workflow`即可。
 
 ![启动Actions](https://gitee.com/umbrella34/blogImage/raw/master/img/image-20210125195239213.png)
 
+![开启工作流](https://gitee.com/umbrella34/blogImage/raw/master/img/image-20210125210230591.png)
 
 至此，部署完毕。
 
+不想每天早上7点打卡，可以修改 `.github/workflows/main.yml`  中的schedule。
+
+```yaml
+on:
+  push:
+  schedule:
+    - cron: '0 16 * * *' # 每天在国际标准时间16点（北京时间早上0点）运行
+
+
+*    *    *    *    *    *
+-    -    -    -    -    -
+|    |    |    |    |    |
+|    |    |    |    |    + year [optional]
+|    |    |    |    +----- day of week (0 - 7) (Sunday=0 or 7)
+|    |    |    +---------- month (1 - 12)
+|    |    +--------------- day of month (1 - 31)
+|    +-------------------- hour (0 - 23)
++------------------------- min (0 - 59)
+ 
+# 这个是国际标准时间，我们时区是UTC+8，所以要在你想设置的时间上减8小时
+```
+
 ## 🔍结果
 
-当你完成上述流程，可以在 `Actions` 页面点击 `auto sign` --> `build` --> `Run sign` 查看运行日志，注意 `提交结果` 的提示。
+当你完成上述流程，可以在 `Actions` 页面点击 `auto sign` --> `build` --> `Run sign` 查看运行日志.
+
+![查看运行结果](https://gitee.com/umbrella34/blogImage/raw/master/img/image-20210125212841095.png)
 
 
 ### 打卡成功
@@ -100,8 +129,6 @@
 ### 打卡失败
 
 如果你没看到 `提交结果`，那么就说明打卡失败了，点击  `Run sign` 里看看，也许能看到你的错误。
-
-
 
 ## 🧬参数
 

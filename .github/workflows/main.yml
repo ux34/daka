@@ -1,9 +1,9 @@
 name: auto sign
 
 on:
-  push:
   schedule:
     - cron: '0 23 * * *' # 每天在国际标准时间23点（北京时间早上7点）运行
+  workflow_dispatch: # 手动运行工作流程
 
 jobs:
   build:
