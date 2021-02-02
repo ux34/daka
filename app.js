@@ -1,4 +1,5 @@
 const fetch = require("./node-fetch/lib");
+let send = require('./mail'); // 邮箱提醒
 
 
 let info; // 全局变量，存储用户信息
@@ -170,7 +171,10 @@ function submit (cookie, body) {
     "method": "POST",
     "mode": "cors"
   }).then(res => {
-    res.text().then(text => console.log('\n提交结果>> ', text))
+    res.text().then(text => {
+      console.log('\n提交结果>> ', text)
+      send('打卡成功', text);
+    })
   })
 }
 
@@ -180,17 +184,20 @@ async function main () {
   // 获取GitHub Secrets
   if(!process.env["UX34"]){
     console.error('GitHub Secrets没有填写，程序中止');
+    send('打卡失败', 'GitHub Secrets没有填写');
     return
   }
   info = JSON.parse(process.env["UX34"]);
   if(!(info['学号'] && info['密码'] && info['位置'])){
     console.error('GitHub Secrets信息不完整，请按文档说明填写，程序中止');
+    send('打卡失败', 'GitHub Secrets信息不完整，请按文档说明填写');
     return
   }
   let cookie = await login();
   let userInfo = await getUserInfo(cookie);
   if(!userInfo) {
     console.error('\n获取用户信息失败，程序中止');
+    send('打卡失败', '获取用户信息失败');
     return
   }
   info['姓名'] =  userInfo['username'];
@@ -200,6 +207,7 @@ async function main () {
   info['电话'] = userInfo['cellphone'];
   if(!(info['姓名'] && info['path'] && info['组织'] && info['性别'] && info['电话'])) {
     console.error('\n用户信息不完整，请检查手机微哨【个人资料】的完成度');
+    send('打卡失败', '用户信息不完整，请检查手机微哨【个人资料】的完成度');
     return
   }
   
@@ -213,6 +221,7 @@ async function main () {
   }
   // 提交表单
   submit(cookie, JSON.stringify(body))
+  
 }
 
 main()
