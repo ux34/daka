@@ -2,7 +2,7 @@ name: auto sign
 
 on:
   schedule:
-    - cron: '0 23 * * *' # 每天在国际标准时间23点（北京时间早上7点）运行
+    - cron: '0 16 * * *' # 每天在国际标准时间16点（北京时间凌晨0点）运行
   workflow_dispatch: # 手动运行工作流程
 
 jobs:
@@ -24,14 +24,17 @@ jobs:
       with:
         node-version: 12.x
     
-    # 如果是定时任务则随机休眠
+     # 如果是定时任务则随机休眠
     - name: Random sleep
       if: github.event_name == 'schedule'
-      run: sleep $(shuf -i 10-300 -n 1)
+      run: |
+        date
+        sleep $(shuf -i 10-300 -n 1)
     
     # 配置环境变量给js读取，执行js文件
     - name: Run sign
       env:
-        UX34: ${{ secrets.UX34 }}
-      run: node app.js
+        INFO: ${{ secrets.INFO }}
+        MAIL: ${{ secrets.MAIL }}
+      run: node index.js
                 
