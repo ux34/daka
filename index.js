@@ -2,6 +2,7 @@ const fetch = require("./node-fetch/lib");
 const sendMail = require('./mail'); // 邮箱提醒
 
 let info; // 全局变量，存储用户信息
+let again = 3; // 任务失败重新执行次数
 
 // 模拟登录
 async function login () {
@@ -32,6 +33,7 @@ async function login () {
   let oauth2cookie = res.headers.get("set-cookie").split(";")[0];
   // console.log(oauth2cookie);
   let url = res.headers.get("location"); // 获得重定向地址
+  console.log(oauth2cookie, url);
   console.log("\n第1次重定向");
   // console.log(url);
 
@@ -177,7 +179,6 @@ async function submit (cookie, body) {
 
 // 执行
 async function main() {
-  let again = 3; // 任务失败重新执行次数
   try {
     info = JSON.parse(process.env["INFO"]);
     if (!(info['学号'] && info['密码'] && info['位置'])) { throw new Error('GitHub Secrets信息不完整，请按文档说明填写'); }
@@ -204,11 +205,13 @@ async function main() {
     return '打卡成功>>> ' + result;
   } catch (error) {
     // 错误处理
-    if(again--){
-      setTimeout(()=>{main();}, 1000*60*3); // 3分钟后重新执行
-      // main() // 云函数不能等待
+    again--
+    if(again){
+      // setTimeout(()=>{main();}, 1000*60*3); // 3分钟后重新执行
+      main()
     }else{
-      console.error('多次错误，未完成打卡，程序结束！！！');
+      console.error(`第${3-again}次执行错误>> ${error.message}`);
+      console.error('\n多次错误，未完成打卡，程序结束！！！');
       sendMail('打卡失败', error.message);
       return '打卡失败>>> ' + error.message;
     };
