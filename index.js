@@ -176,7 +176,7 @@ async function submit (cookie, body) {
 
 
 // 执行
-exports.main = async() => {
+async function main() {
   let again = 3; // 任务失败重新执行次数
   try {
     info = JSON.parse(process.env["INFO"]);
@@ -215,3 +215,5 @@ exports.main = async() => {
     console.error(`第${3-again}次执行错误>> ${error.message}`);
   }
 }
+
+main()
