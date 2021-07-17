@@ -1,6 +1,6 @@
 const sendMail = require('./mail'); // 邮箱提醒模块
-const { login, getUserInfo, submit } = require('./request') // 需要使用到的请求
-const getForm = require('./form') //返回需要提交的表单
+const { login, getUserInfo, submit } = require('./request'); // 需要使用到的请求
+const getForm = require('./form'); //返回需要提交的表单
 
 // 开始执行
 (async () => {
