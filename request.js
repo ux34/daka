@@ -1,4 +1,4 @@
-/*
+/**
 * @description 抓取的请求
 * @fileName request.js
 * @author 伞仙
@@ -7,8 +7,14 @@
 
 const fetch = require("./node-fetch/lib");
 
+// 同步倒计时 秒
+const countdown = (second) => new Promise((resolve) => {
+  setTimeout(() => resolve(), 1000 * second)
+});
+
 // 模拟登录
-async function login (info) {
+let 重新登录次数 = 2;
+async function login(info) {
   try {
     console.log("提交登录表单");
     let res = await fetch("https://api.weishao.com.cn/login?source=%2Foauth%2Fauthorize%3Fclient_id%3DpqZ3wGM07i8R9mR3%26redirect_uri%3Dhttps%253A%252F%252Fyq.weishao.com.cn%252Fcheck%252Fquestionnaire%26response_type%3Dcode%26scope%3Dbase_api%26state%3Druijie", {
@@ -119,13 +125,21 @@ async function login (info) {
     // console.log("真正的登录cookie:", cookie);
     return cookie
   } catch (error) {
+    console.log("登录失败：", error.message);
+    // 登录很容易错误，多登录几次试试
+    if(重新登录次数--){
+      console.log("3分钟后重新登录");
+      // 等待3分钟
+      await countdown(3 * 60);
+      login(info);
+    }
     throw new Error('登录失败:' + error.message)
   }
 }
 
 
 // 获取用户信息
-async function getUserInfo (cookie) {
+async function getUserInfo(cookie) {
   let userInfo = await fetch("https://yq.weishao.com.cn/userInfo", {
     "headers": {
       "accept": "*/*",
@@ -156,7 +170,7 @@ async function getUserInfo (cookie) {
 
 
 // 模拟提交
-async function submit (cookie, body) {
+async function submit(cookie, body) {
   return await fetch("https://yq.weishao.com.cn/api/questionnaire/questionnaire/addMyAnswer", {
     "headers": {
       "accept": "*/*",
