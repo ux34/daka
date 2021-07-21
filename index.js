@@ -1,4 +1,4 @@
-const sendMail = require('./mail'); // 邮箱提醒模块
+const sendMail = require('./mail'); // 邮箱发送
 const { login, getUserInfo, submit } = require('./request'); // 需要使用到的请求
 const getForm = require('./form'); //返回需要提交的表单
 
@@ -7,6 +7,7 @@ const getForm = require('./form'); //返回需要提交的表单
   try {
     // 解析环境变量中的JSON字符串
     let info = JSON.parse(process.env["INFO"]);
+    let mail = process.env["MAIL"];
     // 默认为0：离校不在厦门
     if (info['类型'] === undefined) {
       info['类型'] = 0
@@ -30,7 +31,7 @@ const getForm = require('./form'); //返回需要提交的表单
     // 登录获取cookie
     let cookie = await login(info);
     if (!cookie) {
-      throw new Error('获取用户信息失败');
+      throw new Error('获取cookie失败');
     }
     // 通过cookie获取用户信息，减少 Secrets 的配置项
     let userInfo = await getUserInfo(cookie);
@@ -61,11 +62,12 @@ const getForm = require('./form'); //返回需要提交的表单
       throw new Error('提交表单失败：' + err.message)
     })
     console.log('打卡成功：' + result);
-    sendMail('打卡成功', result);
+    // 发过结果到通知邮件
+    mail && sendMail(mail, '打卡成功', result);
   } catch (error) {
     // 错误处理
-    sendMail('打卡失败', error.message);
-    return '打卡失败：' + error.message;
+    console.log('打卡失败：' + error.message);
+    mail && sendMail(mail, '打卡失败', error.message);
   }
 
 })();

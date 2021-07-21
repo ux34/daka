@@ -1,48 +1,38 @@
+/**
+* @description 邮件发送 
+* 调用方法:sendMail('xxxxxxx@qq.com','这是测试邮件', 'Hi,这是一封测试邮件');
+* @fileName mail.js
+* @author 伞仙
+* @date 2021/07/21 19:05:28
+*/
+
 const nodemailer = require("./nodemailer/lib/nodemailer");
 
-/**
- * QQ的发送邮件函数
- *
- * @param {String} user 自己的邮箱
- * @param {String} pass qq邮箱授权码
- * @param {Object} content 发送的内容
- * @param {String} content.from 发件人 昵称及邮箱，格式：昵称<邮箱>
- * @param {String} content.to 收件人邮箱 可多个（用英文逗号分隔）
- * @param {String} content.subject 主题、标题
- * @param {String} content.text 正文 纯文本内容
- * @param {String} content.html 正文 html[可选]
- * @return {Promise} 邮件发送结果
- */
-function sendMail (user, pass, content) {
-  // 使用默认的SMTP传输创建可重用的传输对象
-  let transporter = nodemailer.createTransport({
-    host: "smtp.qq.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: user, // 用户账号
-      pass: pass, // 授权码,通过QQ获取
-    },
-  });
-  // 使用定义的传输对象发送邮件，并返回邮件发送结果<Promise>
-  return transporter.sendMail(content);
+const config = {
+  user: 'ux34@qq.com', // 邮箱帐号
+  pass: 'ctcpzlmlijctbaaj', // 邮箱授权码
+  from: '"Daka" <ux34@qq.com>', // 发件人 昵称与邮箱
 }
 
+let transporter = nodemailer.createTransport({
+  host: "smtp.qq.com",
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: config.user, // 邮箱账号
+    pass: config.pass, // 授权码,通过QQ邮箱获取
+  },
+});
 
-module.exports = function (subject, text) {
-  if (!process.env["MAIL"]) return;
-  let {user, pass, to} = JSON.parse(process.env["MAIL"])
-  if(user && pass && to && subject && text){
-    sendMail(user, pass,
-      {
-        from: `Daka<${user}>`,
-        to: to,
-        subject: subject,
-        text: text
-      }).then(() => {
-        console.log('邮件发送成功');
-      }).catch(() => {
-        console.log('邮件发送失败');
-      })
-  }
+function sendMail(to, subject, text) {
+  transporter.sendMail({
+    from: config.from,
+    to: to,
+    subject: subject,
+    text: text
+  })
+  .then(() => console.log("邮件发送成功"))
+  .catch((err) => console.log("邮件发送失败, " + err.message))
 }
+
+module.exports = sendMail;
