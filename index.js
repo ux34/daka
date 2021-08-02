@@ -2,12 +2,37 @@ const sendMail = require('./mail'); // 邮箱发送
 const { login, getUserInfo, submit } = require('./request'); // 需要使用到的请求
 const getForm = require('./form'); //返回需要提交的表单
 
+// 同步倒计时/秒
+const syncTimeout = second => new Promise((resolve) => {
+  setTimeout(() => resolve(), 1000 * second)
+});
+
+// 本地test
+/* 
+process.env["INFO"] = `
+{
+  "类型": 0,
+  "学号": "1xxxxxxxxx",
+  "密码": "xxxxxxxx",
+  "位置": "福建省xxxxxxxxx"
+}
+`;
+process.env["MAIL"] = 'ux34@qq.com';
+
+ */
+
 // 开始执行
 (async () => {
+  // 获取通知邮箱
+  let mail = process.env["MAIL"];
+  const mailReg = new RegExp("^[a-z0-9A-Z]+[- | a-z0-9A-Z . _]+@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-z]{2,}$");
+  if (!mailReg.test(mail)) {
+    console.log('不是正确的邮箱，将取消发送邮箱，请修改')
+    mail = null
+  }
   try {
     // 解析环境变量中的JSON字符串
     let info = JSON.parse(process.env["INFO"]);
-    let mail = process.env["MAIL"];
     // 默认为0：离校不在厦门
     if (info['类型'] === undefined) {
       info['类型'] = 0
@@ -29,11 +54,20 @@ const getForm = require('./form'); //返回需要提交的表单
     }
 
     // 登录获取cookie
-    let cookie = await login(info);
+    let cookie = await login(info).catch(err => {
+      mail && sendMail(mail, '登录失败，将再5分钟后重新尝试', err.message)
+      return null
+    })
     if (!cookie) {
-      throw new Error('获取cookie失败');
+      // 登录失败5分钟后再次尝试登录
+      // 同步倒计时5分钟
+      await syncTimeout(5*60)
+
+      // 再次失败就不管了
+      // 不知道什么原因经常请求失败
+      cookie = await login(info)
     }
-    // 通过cookie获取用户信息，减少 Secrets 的配置项
+    // 直接通过cookie获取用户信息，减少 Secrets 的配置项
     let userInfo = await getUserInfo(cookie);
     if (!userInfo) {
       throw new Error('获取用户信息失败');
@@ -63,10 +97,12 @@ const getForm = require('./form'); //返回需要提交的表单
     })
     console.log('打卡成功：' + result);
     // 发过结果到通知邮件
+    
     mail && sendMail(mail, '打卡成功', result);
   } catch (error) {
     // 错误处理
     console.log('打卡失败：' + error.message);
+    // 发过失败的结果到通知邮件
     mail && sendMail(mail, '打卡失败', error.message);
   }
 
