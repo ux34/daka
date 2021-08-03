@@ -34,20 +34,21 @@ process.env["MAIL"] = 'ux34@qq.com';
     // 解析环境变量中的JSON字符串
     let info = JSON.parse(process.env["INFO"]);
     // 默认为0：离校不在厦门
+    // 开学将默认更新为2：在校
     if (info['类型'] === undefined) {
       info['类型'] = 0
     }
     if (
       !(
-        [0,1,2].includes(info['类型'])
+        [0,1,2,3].includes(info['类型'])
         && info['学号']
         && info['密码']
         && info['位置']
       )) {
       throw new Error('GitHub Secrets 信息不完整，[类型, 学号, 密码, 位置]为必填项，请按文档说明填写');
     }
-    // 家在厦门需要多填一个社区
-    if (info['类型'] === 1) {
+    // 1:家在厦门 || 3:厦门租房  需要多填一个社区
+    if ([1,3].includes(info['类型'])) {
       if (!info['社区']) {
         throw new Error('GitHub Secrets 信息不完整，家在厦门需要多填一个社区，请按文档说明填写');
       }
@@ -55,6 +56,7 @@ process.env["MAIL"] = 'ux34@qq.com';
 
     // 登录获取cookie
     let cookie = await login(info).catch(err => {
+      console.log('登录失败：' + err.message)
       mail && sendMail(mail, '登录失败，将再5分钟后重新尝试', err.message)
       return null
     })
