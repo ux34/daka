@@ -57,7 +57,7 @@ process.env["MAIL"] = 'ux34@qq.com';
     // 登录获取cookie
     let cookie = await login(info).catch(err => {
       console.log('登录失败：' + err.message)
-      mail && sendMail(mail, '登录失败，将再5分钟后重新尝试', err.message)
+      mail && sendMail(mail, '登录失败，将在5分钟后重新尝试', err.message)
       return null
     })
     if (!cookie) {
