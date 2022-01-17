@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "axios": "^0.24.0",
+    "nodemailer": "^6.7.2",
+    "yamljs": "^0.3.0"
+  }
+}
