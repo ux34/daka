@@ -1,8 +1,8 @@
 name: 自动打卡
 
 on:
-  schedule:
-    - cron: '0 0 * * *' # 每天在国际标准时间0点（北京时间8点）运行
+#   schedule:
+#     - cron: '0 0 * * *' # 每天在国际标准时间0点（北京时间8点）运行
   workflow_dispatch: # 手动运行工作流程
 
 jobs:
